@@ -1,5 +1,6 @@
 from django.shortcuts import render, redirect
 from django.http import Http404
+from django.http.response import JsonResponse
 from . import models
 
 
@@ -32,7 +33,7 @@ def view_article(request, pk):
     return render(request, template_name, context)
 
 
-def edit(request,pk):
+def edit(request, pk):
     template_name = "blog/edit.html"
     try:
         article = models.Article.objects.get(pk=pk)
@@ -47,11 +48,30 @@ def edit(request,pk):
     return render(request, template_name, context)
 
 
-
 def delete(request, pk):
     try:
         article = models.Article.objects.get(pk=pk)
     except models.Article.DoesNotExist:
         raise Http404
     article.delete()
-    return redirect(article.all)
+    return redirect(article_all)
+
+
+def like(request, pk):
+    try:
+        article = models.Article.objects.get(pk=pk)
+    except models.Article.DoNotExist:
+        raise Http404
+    article.like += 1
+    article.save()
+    return redirect(view_article, pk)
+
+
+def api_like(request, pk):
+    try:
+        article = models.Article.objects.get(pk=pk)
+    except models.Article.DoesNotExist:
+        raise Http404
+    article.like += 1
+    article.save()
+    return JsonResponse({"like": article.like})
