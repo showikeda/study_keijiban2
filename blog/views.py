@@ -29,6 +29,10 @@ def view_article(request, pk):
         article = models.Article.objects.get(pk=pk)
     except models.Article.DoesNotExist:
         raise Http404
+
+    if request.method == "POST":
+        models.Comment.objects.create(text=request.POST["text"], article=article)
+
     context = {"article": article}
     return render(request, template_name, context)
 
